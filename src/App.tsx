@@ -6,8 +6,9 @@ import { Shortlist } from "./components/Shortlist";
 import { PuppiesList } from "./components/PuppiesList";
 import { NewPuppyForm } from "./components/NewPuppyForm";
 import { puppies as puppiesData } from "./data/puppies";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Puppy } from "./types";
+import { LoaderCircle } from "lucide-react";
 
 export function App() {
   return (
@@ -27,12 +28,58 @@ function Main() {
 
   return (
     <main>
+      <ApiPuppies />
       <div className="mt-24 grid gap-8 sm:grid-cols-2">
         <Search searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         <Shortlist liked={liked} setLiked={setLiked} puppies={puppies} />
       </div>
-      <PuppiesList searchQuery={searchQuery} puppies={puppies} liked={liked} setLiked={setLiked} />
+      <PuppiesList
+        searchQuery={searchQuery}
+        puppies={puppies}
+        liked={liked}
+        setLiked={setLiked}
+      />
       <NewPuppyForm puppies={puppies} setPuppies={setPuppies} />
     </main>
+  );
+}
+
+function ApiPuppies() {
+  const [apiPuppies, setApiPuppies] = useState<Puppy[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    async function getPuppies() {
+      setIsLoading(true);
+
+      try {
+        const response = await fetch("http://react-backend.test/api/puppies");
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          setError(`${errorData.message}: ${errorData.detail}`);
+          throw errorData;
+        }
+
+        const data = await response.json();
+        setApiPuppies(data);
+      } catch (error) {
+        console.error(error);
+      }
+      setIsLoading(false);
+    }
+
+    getPuppies();
+  });
+
+  return (
+    <div className="mt-12 bg-white p-6 shadow ring ring-black/5">
+      {isLoading && <LoaderCircle className="animate-spin stroke-slate-300" />}
+      {apiPuppies.length > 0 && (
+        <pre>{JSON.stringify(apiPuppies, null, 2)}</pre>
+      )}
+      {error && <p className="text-red-500">{error}</p>}
+    </div>
   );
 }
