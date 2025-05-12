@@ -3,15 +3,7 @@ import * as React from "react";
 import { Puppy } from "../types";
 import { useState } from "react";
 
-export function LikeToggle({
-  id,
-  liked,
-  setLiked,
-}: {
-  id: Puppy["id"];
-  liked: Puppy["id"][];
-  setLiked: React.Dispatch<React.SetStateAction<Puppy["id"][]>>;
-}) {
+export function LikeToggle({ puppy }: { puppy: Puppy }) {
   const [pending, setPending] = useState(false);
 
   return (
@@ -20,14 +12,14 @@ export function LikeToggle({
       onClick={() => {
         setPending(true);
 
-        setTimeout(() => {
-          if (liked.includes(id)) {
-            setLiked(liked.filter((puppyId) => puppyId !== id));
-          } else {
-            setLiked([...liked, id]);
-          }
-          setPending(false);
-        }, 1500);
+        /*        setTimeout(() => {
+                  if (liked.includes(id)) {
+                    setLiked(liked.filter((puppyId) => puppyId !== id));
+                  } else {
+                    setLiked([...liked, id]);
+                  }
+                  setPending(false);
+                }, 1500);*/
       }}
     >
       {pending ? (
@@ -35,7 +27,7 @@ export function LikeToggle({
       ) : (
         <Heart
           className={
-            liked.includes(id)
+            puppy.likedBy.includes(1)
               ? "fill-pink-500 stroke-none"
               : "stroke-slate-200 group-hover:stroke-slate-300"
           }
